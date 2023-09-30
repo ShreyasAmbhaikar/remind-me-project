@@ -67,5 +67,12 @@ export default async function Home() {
         </div>
       );
     }
+
+    return (
+      <div>
+        Collections: {collections.length}
+        <CreateCollectionBtn />
+      </div>
+    );
   }
 }
