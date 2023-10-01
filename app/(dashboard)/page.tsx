@@ -1,3 +1,4 @@
+import CollectionCard from "@/components/CollectionCard";
 import CreateCollectionBtn from "@/components/CreateCollectionBtn";
 import SadFace from "@/components/icons/SadFace";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -69,10 +70,14 @@ export default async function Home() {
     }
 
     return (
-      <div>
-        Collections: {collections.length}
+      <>
         <CreateCollectionBtn />
-      </div>
+        <div className="flex flex-col gap-4 mt-6">
+          {collections.map((collection) => (
+            <CollectionCard key={collection.id} collection={collection} />
+          ))}
+        </div>
+      </>
     );
   }
 }
