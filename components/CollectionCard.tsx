@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useMemo, useState, useTransition } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -28,6 +28,7 @@ import { deleteCollection } from "@/actions/collection";
 import { toast } from "./ui/use-toast";
 import { useRouter } from "next/navigation";
 import CreateTaskDialog from "./CreateTaskDialog";
+import TaskCard from "./TaskCard";
 
 interface Props {
   collection: Collection & {
@@ -38,11 +39,8 @@ interface Props {
 function CollectionCard({ collection }: Props) {
   const [isOpen, setIsOpen] = useState(true);
   const router = useRouter();
-
   const [showCreateModel, setShowCreateModel] = useState(false);
-
   const tasks = collection.tasks;
-
   const [isLoading, startTransition] = useTransition();
 
   const removeCollection = async () => {
@@ -61,6 +59,14 @@ function CollectionCard({ collection }: Props) {
       });
     }
   };
+
+  const tasksDone = useMemo(() => {
+    return collection.tasks.filter((task) => task.done).length;
+  }, [collection.tasks]);
+
+  const totalTasks = collection.tasks.length;
+
+  const progress = totalTasks === 0 ? 0 : (tasksDone / totalTasks) * 100;
 
   return (
     <>
@@ -86,13 +92,29 @@ function CollectionCard({ collection }: Props) {
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="flex rounded-b-md flex-col dark:bg-neutral-900 shadow-lg">
-          {tasks.length === 0 && <div>No tasks</div>}
+          {tasks.length === 0 && (
+            <Button
+              variant={"ghost"}
+              className="flex items-center justify-center gap-1 p-8 py-12 rounded-none"
+              onClick={() => setShowCreateModel(true)}
+            >
+              <p>There are no task yet:</p>
+              <span
+                className={cn(
+                  "text-sm bg-clip-text text-transparent",
+                  CollectionColors[collection.color as CollectionColor]
+                )}
+              >
+                Create one
+              </span>
+            </Button>
+          )}
           {tasks.length > 0 && (
             <>
-              <Progress className="rounded-none" value={45} />
+              <Progress className="rounded-none" value={progress} />
               <div className="p-4 gap-3 flex flex-col">
                 {tasks.map((task) => (
-                  <div key={task.id}>{task.content}</div>
+                  <TaskCard key={task.id} task={task} />
                 ))}
               </div>
             </>
